@@ -94,7 +94,7 @@ Things to notice in the table:
 [PaymentSucceededEvent.cs](../../src/SimpleStore.Contracts/PaymentSucceededEvent.cs) shows every convention in a few lines: the pinned URN, the `V1` type name, the `Version` default, immutable `init` properties.
 
 ```csharp
-[MessageUrn("urn:message:SimpleStore.Contracts:PaymentSucceededEvent")]
+[MessageUrn("SimpleStore.Contracts:PaymentSucceededEvent")]
 public sealed record PaymentSucceededEventV1
 {
     public int Version { get; init; } = 1;
@@ -108,12 +108,12 @@ public sealed record PaymentSucceededEventV1
 
 The attribute pins the wire name to the original, un-suffixed one. The `V1` in the C# name is for developers; the URN is for the bus. [OrderSubmittedEvent.cs](../../src/SimpleStore.Contracts/OrderSubmittedEvent.cs) explains the intent in its comment: a future `OrderSubmittedEventV2` declares a different URN so consumers can route on it.
 
-> **Check before relying on the pin.** The `MessageUrn` attribute in the MassTransit package this repo references (`MassTransit.Abstractions` 9.2.1, see [SimpleStore.Contracts.csproj](../../src/SimpleStore.Contracts/SimpleStore.Contracts.csproj)) adds the `urn:message:` prefix itself and throws if the value already starts with it. While this guide was being written the problem was reproduced twice (independently): a scratch console project that referenced `SimpleStore.Contracts` and called `MessageUrn.ForType(typeof(OrderSubmittedEventV1))` failed with `Value should not contain the default prefix 'urn:message:'`. Writing `[MessageUrn("SimpleStore.Contracts:OrderSubmittedEvent")]` produced the same final URN in the same experiment. If you see this error when you run the system, that is the cause. It is listed in [chapter 11](11-known-limitations.md#8-possible-defects-found-while-writing-this-guide).
+> **No `urn:message:` prefix in the attribute.** `MessageUrn` adds the `urn:message:` prefix itself and throws `Value should not contain the default prefix 'urn:message:'` if the value already starts with it. The attributes originally carried the prefix; this was fixed when the repo moved to MassTransit 8.5.11 (see [chapter 11](11-known-limitations.md#8-possible-defects-found-while-writing-this-guide)). The final URN is unchanged: `urn:message:SimpleStore.Contracts:PaymentSucceededEvent`.
 
 The contracts project references only the attribute package, not the whole of MassTransit, so it stays a light dependency for every service:
 
 ```xml
-    <PackageReference Include="MassTransit.Abstractions" Version="9.2.1" />
+    <PackageReference Include="MassTransit.Abstractions" Version="8.5.11" />
 ```
 
 ### 2. Publishing and consuming

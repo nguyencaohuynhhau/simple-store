@@ -161,20 +161,19 @@ While reading the older documents you may find statements that no longer match t
 
 These are different from the deliberate simplifications above: they look like **bugs or surprises**, found while reading and testing the code for this guide. Each one says how well it was verified.
 
-### 8.1 `[MessageUrn("urn:message:...")]` is rejected by MassTransit 9.2.1 — *reproduced*
+### 8.1 `[MessageUrn("urn:message:...")]` was rejected by MassTransit — *fixed*
 
-- **Where:** every event in [`src/SimpleStore.Contracts`](../../src/SimpleStore.Contracts/) (for example `OrderSubmittedEventV1`).
-- **What happens:** the attributes are written with the full `urn:message:` prefix. In a scratch console project referencing `SimpleStore.Contracts` and `MassTransit.Abstractions` 9.2.1, `MessageUrn.ForType(typeof(OrderSubmittedEventV1))` threw `ArgumentException: Value should not contain the default prefix 'urn:message:'` (wrapped in a `TypeInitializationException`).
-- **Impact:** MassTransit resolves the URN when it publishes or consumes a message, so the same exception is the expected result in the running services. *Not verified end to end* — the AppHost was not run for this check. If your build runs fine, the pinned package version or your local state differs; please check.
-- **Likely fix:** drop the prefix in each attribute, e.g. `[MessageUrn("SimpleStore.Contracts:OrderSubmittedEvent")]`. The scratch test produced the same final URN with that form.
+- **Where:** every event in [`src/SimpleStore.Contracts`](../../src/SimpleStore.Contracts/).
+- **What happened:** the attributes were written with the full `urn:message:` prefix. `MessageUrn` (both 9.2.1 and 8.5.11) adds that prefix itself and throws `ArgumentException: Value should not contain the default prefix 'urn:message:'` (wrapped in a `TypeInitializationException`) the first time a message type is published or consumed.
+- **Fix:** the prefix was dropped from every attribute, e.g. `[MessageUrn("SimpleStore.Contracts:OrderSubmittedEvent")]`. A scratch test against 8.5.11 confirmed all 13 events resolve to the same final URN as before (`urn:message:SimpleStore.Contracts:<Name>`).
 
 ### 8.2 The URN pin does not keep exchange names stable — *observed in a scratch test*
 
 The v11 notes say the `V1` rename is invisible on the bus. That is true for the URN inside the message envelope, but in the scratch test the exchange name was derived from the CLR type name, not from the URN. After the rename, exchanges are therefore named `SimpleStore.Contracts:<Name>V1`. This is harmless while all services are rebuilt and redeployed together, but not a guarantee for rolling upgrades.
 
-### 8.3 MassTransit 9 licensing — *to verify*
+### 8.3 MassTransit 9 licensing — *resolved by downgrading*
 
-An in-memory bus test on 9.2.1 failed with a message asking for a license (`SetLicense` / `MT_LICENSE`). No license configuration was found in the repository. Check the licensing terms of the MassTransit version you deploy.
+MassTransit 9 requires a commercial license at runtime (`SetLicense` / `MT_LICENSE`); an in-memory bus test on 9.2.1 failed without one. The repo now pins **MassTransit 8.5.11** (Apache 2.0, no license needed). The only schema difference was the v9-only `OutboxState.BusName` column; each MassTransit-using DbContext has a `DowngradeMassTransitToV8` migration that drops it and restores the v8 outbox indexes.
 
 ### 8.4 Events backlogged while Inventory was down are not published — *from reading the code*
 

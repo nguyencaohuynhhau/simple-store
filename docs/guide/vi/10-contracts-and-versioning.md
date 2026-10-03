@@ -95,7 +95,7 @@ Những điều cần để ý trong bảng:
 [PaymentSucceededEvent.cs](../../../src/SimpleStore.Contracts/PaymentSucceededEvent.cs) cho thấy mọi quy ước chỉ trong vài dòng: URN được ghim, tên kiểu có `V1`, giá trị mặc định của `Version`, các property `init` bất biến (immutable).
 
 ```csharp
-[MessageUrn("urn:message:SimpleStore.Contracts:PaymentSucceededEvent")]
+[MessageUrn("SimpleStore.Contracts:PaymentSucceededEvent")]
 public sealed record PaymentSucceededEventV1
 {
     public int Version { get; init; } = 1;
@@ -109,12 +109,12 @@ public sealed record PaymentSucceededEventV1
 
 Attribute ghim wire name về tên gốc, không có hậu tố. Phần `V1` trong tên C# dành cho lập trình viên; URN dành cho bus. [OrderSubmittedEvent.cs](../../../src/SimpleStore.Contracts/OrderSubmittedEvent.cs) giải thích ý định trong comment của nó: một `OrderSubmittedEventV2` trong tương lai khai báo một URN khác để các consumer có thể định tuyến theo đó.
 
-> **Hãy kiểm tra trước khi dựa vào việc ghim.** Attribute `MessageUrn` trong gói MassTransit mà repo này tham chiếu (`MassTransit.Abstractions` 9.2.1, xem [SimpleStore.Contracts.csproj](../../../src/SimpleStore.Contracts/SimpleStore.Contracts.csproj)) tự thêm tiền tố `urn:message:` và ném exception nếu giá trị đã bắt đầu bằng nó. Trong lúc viết tài liệu này, vấn đề đã được tái hiện hai lần (độc lập): một dự án console thử nghiệm tham chiếu `SimpleStore.Contracts` và gọi `MessageUrn.ForType(typeof(OrderSubmittedEventV1))` đã thất bại với `Value should not contain the default prefix 'urn:message:'`. Viết `[MessageUrn("SimpleStore.Contracts:OrderSubmittedEvent")]` cho ra cùng URN cuối cùng trong cùng thí nghiệm. Nếu bạn thấy lỗi này khi chạy hệ thống, đó là nguyên nhân. Nó được liệt kê trong [chương 11](11-known-limitations.md).
+> **Không viết tiền tố `urn:message:` trong attribute.** `MessageUrn` tự thêm tiền tố `urn:message:` và ném `Value should not contain the default prefix 'urn:message:'` nếu giá trị đã bắt đầu bằng nó. Ban đầu các attribute có chứa tiền tố này; lỗi đã được sửa khi repo chuyển sang MassTransit 8.5.11 (xem [chương 11](11-known-limitations.md)). URN cuối cùng không đổi: `urn:message:SimpleStore.Contracts:PaymentSucceededEvent`.
 
 Dự án contracts chỉ tham chiếu gói chứa attribute, không phải toàn bộ MassTransit, nên nó vẫn là một dependency nhẹ cho mọi service:
 
 ```xml
-    <PackageReference Include="MassTransit.Abstractions" Version="9.2.1" />
+    <PackageReference Include="MassTransit.Abstractions" Version="8.5.11" />
 ```
 
 ### 2. Publish và consume

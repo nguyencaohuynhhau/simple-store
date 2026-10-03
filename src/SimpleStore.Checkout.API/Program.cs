@@ -66,6 +66,12 @@ builder.Services.AddMassTransit(x =>
         o.UseBusOutbox();
     });
 
+    // Consumer outbox + inbox on every endpoint: saga publishes are held until the saga row commits.
+    // Without it a failed commit (e.g. 40001 on concurrent inserts) still sent ReserveStockRequested,
+    // and the retry minted a new ReservationId → a leaked stock hold per retry.
+    x.AddConfigureEndpointsCallback((context, _, cfg) =>
+        cfg.UseEntityFrameworkOutbox<CheckoutDbContext>(context));
+
     x.AddSagaStateMachine<CheckoutSagaStateMachine, CheckoutSagaState>()
         .EntityFrameworkRepository(r =>
         {

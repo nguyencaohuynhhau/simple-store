@@ -10,8 +10,9 @@ namespace SimpleStore.Contracts;
 // v11: wire URN pinned to the pre-v11 MassTransit default (urn:message:&lt;Namespace&gt;:&lt;TypeName&gt;)
 // so the rename to OrderSubmittedEventV1 is invisible on the bus. Existing queue topology and any
 // in-flight messages keep working. Future OrderSubmittedEventV2 will declare a different URN
-// (e.g. "urn:message:SimpleStore.Contracts:OrderSubmittedEventV2") so consumers can route on it.
-[MessageUrn("urn:message:SimpleStore.Contracts:OrderSubmittedEvent")]
+// (e.g. [MessageUrn("SimpleStore.Contracts:OrderSubmittedEventV2")]) so consumers can route on it.
+// Never include the "urn:message:" prefix in the attribute — MassTransit adds it and throws if present.
+[MessageUrn("SimpleStore.Contracts:OrderSubmittedEvent")]
 public sealed record OrderSubmittedEventV1
 {
     /// <summary>

@@ -163,20 +163,19 @@ Khi đọc các tài liệu cũ hơn, bạn có thể thấy những phát biể
 
 Những mục này khác với các đơn giản hóa cố ý ở trên: chúng trông giống **lỗi (bug) hoặc những điều bất ngờ**, được tìm thấy khi đọc và thử mã nguồn để viết hướng dẫn này. Mỗi mục cho biết nó đã được kiểm chứng đến mức nào.
 
-### 8.1 `[MessageUrn("urn:message:...")]` bị MassTransit 9.2.1 từ chối — *đã tái hiện*
+### 8.1 `[MessageUrn("urn:message:...")]` từng bị MassTransit từ chối — *đã sửa*
 
-- **Ở đâu:** mọi event trong [`src/SimpleStore.Contracts`](../../../src/SimpleStore.Contracts/) (ví dụ `OrderSubmittedEventV1`).
-- **Chuyện gì xảy ra:** các attribute được viết với đầy đủ tiền tố `urn:message:`. Trong một project console thử nghiệm tham chiếu `SimpleStore.Contracts` và `MassTransit.Abstractions` 9.2.1, `MessageUrn.ForType(typeof(OrderSubmittedEventV1))` đã ném `ArgumentException: Value should not contain the default prefix 'urn:message:'` (được bọc trong một `TypeInitializationException`).
-- **Tác động:** MassTransit phân giải URN khi nó publish hoặc consume một thông điệp, nên cùng ngoại lệ đó là kết quả được kỳ vọng trong các service đang chạy. *Chưa kiểm chứng từ đầu đến cuối* — AppHost không được chạy cho lần kiểm tra này. Nếu bản build của bạn chạy bình thường, thì phiên bản package được ghim hoặc trạng thái máy của bạn khác; hãy kiểm tra lại.
-- **Cách sửa có khả năng đúng:** bỏ tiền tố trong từng attribute, ví dụ `[MessageUrn("SimpleStore.Contracts:OrderSubmittedEvent")]`. Bài thử nghiệm cho ra cùng URN cuối cùng với dạng này.
+- **Ở đâu:** mọi event trong [`src/SimpleStore.Contracts`](../../../src/SimpleStore.Contracts/).
+- **Chuyện gì đã xảy ra:** các attribute được viết với đầy đủ tiền tố `urn:message:`. `MessageUrn` (cả 9.2.1 lẫn 8.5.11) tự thêm tiền tố này và ném `ArgumentException: Value should not contain the default prefix 'urn:message:'` (bọc trong `TypeInitializationException`) ngay lần đầu một kiểu message được publish hoặc consume.
+- **Cách sửa:** bỏ tiền tố trong mọi attribute, ví dụ `[MessageUrn("SimpleStore.Contracts:OrderSubmittedEvent")]`. Một bài test thử trên 8.5.11 xác nhận cả 13 event cho ra cùng URN cuối cùng như trước (`urn:message:SimpleStore.Contracts:<Name>`).
 
 ### 8.2 Việc ghim URN không giữ ổn định tên exchange — *quan sát được trong một bài thử nghiệm*
 
 Ghi chú v11 nói rằng việc đổi tên thành `V1` là vô hình trên bus. Điều đó đúng với URN bên trong envelope của thông điệp, nhưng trong bài thử nghiệm thì tên exchange được suy ra từ tên kiểu CLR, không phải từ URN. Do đó sau khi đổi tên, các exchange có tên `SimpleStore.Contracts:<Name>V1`. Điều này vô hại khi mọi service được build lại và triển khai lại cùng lúc, nhưng không phải là một sự đảm bảo cho các lần nâng cấp cuốn chiếu (rolling upgrade).
 
-### 8.3 Giấy phép (licensing) của MassTransit 9 — *cần kiểm chứng*
+### 8.3 Giấy phép (licensing) của MassTransit 9 — *đã xử lý bằng cách hạ phiên bản*
 
-Một bài test bus in-memory trên 9.2.1 đã thất bại với thông báo yêu cầu giấy phép (`SetLicense` / `MT_LICENSE`). Không tìm thấy cấu hình giấy phép nào trong repository. Hãy kiểm tra điều khoản giấy phép của phiên bản MassTransit mà bạn triển khai.
+MassTransit 9 yêu cầu giấy phép thương mại khi chạy (`SetLicense` / `MT_LICENSE`); một bài test bus in-memory trên 9.2.1 đã thất bại khi không có giấy phép. Repo hiện ghim **MassTransit 8.5.11** (Apache 2.0, không cần giấy phép). Khác biệt schema duy nhất là cột `OutboxState.BusName` chỉ có ở v9; mỗi DbContext dùng MassTransit có migration `DowngradeMassTransitToV8` để xoá cột này và khôi phục các index outbox của v8.
 
 ### 8.4 Các event tồn đọng trong lúc Inventory ngừng hoạt động không được publish — *từ việc đọc mã nguồn*
 

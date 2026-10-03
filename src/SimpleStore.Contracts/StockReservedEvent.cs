@@ -8,7 +8,7 @@ namespace SimpleStore.Contracts;
 /// does not republish history). The checkout saga consumes this to confirm the order.
 /// </summary>
 // v11: wire URN pinned to the pre-v11 default — see OrderSubmittedEvent.cs.
-[MessageUrn("urn:message:SimpleStore.Contracts:StockReservedEvent")]
+[MessageUrn("SimpleStore.Contracts:StockReservedEvent")]
 public sealed record StockReservedEventV1
 {
     public int Version { get; init; } = 1;

@@ -8,7 +8,7 @@ namespace SimpleStore.Contracts;
 /// handler writes this integration event through its own outbox flush and never touches KurrentDB.
 /// </summary>
 // v11: wire URN pinned to the pre-v11 default — see OrderSubmittedEvent.cs.
-[MessageUrn("urn:message:SimpleStore.Contracts:StockReservationFailedEvent")]
+[MessageUrn("SimpleStore.Contracts:StockReservationFailedEvent")]
 public sealed record StockReservationFailedEventV1
 {
     public int Version { get; init; } = 1;

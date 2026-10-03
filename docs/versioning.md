@@ -51,7 +51,7 @@ Asp.Versioning emits the `Sunset` HTTP header on every v1 response so well-behav
 **Contract carrier:** `SimpleStore.Contracts`. Every event record is `Vn`-suffixed, carries an `int Version` field with a default initializer, and pins its wire URN via `[MessageUrn]`. The wire URN — not the CLR type name — is the cross-service identifier.
 
 ```csharp
-[MessageUrn("urn:message:SimpleStore.Contracts:OrderSubmittedEvent")]
+[MessageUrn("SimpleStore.Contracts:OrderSubmittedEvent")] // MassTransit prepends "urn:message:" itself
 public sealed record OrderSubmittedEventV1
 {
     public int Version { get; init; } = 1;
