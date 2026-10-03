@@ -10,7 +10,7 @@ namespace SimpleStore.Contracts;
 /// ReservationId is the same saga-generated id used by <see cref="ReserveStockRequestedEventV1"/>.
 /// </summary>
 // v12 — brand-new event; URN follows the repo convention (V1 omits the suffix). See OrderSubmittedEvent.cs.
-[MessageUrn("urn:message:SimpleStore.Contracts:StockReservationCancelRequestedEvent")]
+[MessageUrn("SimpleStore.Contracts:StockReservationCancelRequestedEvent")]
 public sealed record StockReservationCancelRequestedEventV1
 {
     public int Version { get; init; } = 1;

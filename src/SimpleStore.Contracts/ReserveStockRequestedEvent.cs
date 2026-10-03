@@ -8,7 +8,7 @@ namespace SimpleStore.Contracts;
 /// and as an idempotency key (AppendCondition.NoStream on stream reservation-{ReservationId}).
 /// </summary>
 // v11: wire URN pinned to the pre-v11 default — see OrderSubmittedEvent.cs.
-[MessageUrn("urn:message:SimpleStore.Contracts:ReserveStockRequestedEvent")]
+[MessageUrn("SimpleStore.Contracts:ReserveStockRequestedEvent")]
 public sealed record ReserveStockRequestedEventV1
 {
     public int Version { get; init; } = 1;

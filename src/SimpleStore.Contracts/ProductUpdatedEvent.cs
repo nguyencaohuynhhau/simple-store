@@ -8,7 +8,7 @@ namespace SimpleStore.Contracts;
 /// Fields mirror ProductDto so a consumer can refresh every denormalized copy in one pass.
 /// </summary>
 // v11: wire URN pinned to the pre-v11 default — see OrderSubmittedEvent.cs.
-[MessageUrn("urn:message:SimpleStore.Contracts:ProductUpdatedEvent")]
+[MessageUrn("SimpleStore.Contracts:ProductUpdatedEvent")]
 public sealed record ProductUpdatedEventV1
 {
     public int Version { get; init; } = 1;

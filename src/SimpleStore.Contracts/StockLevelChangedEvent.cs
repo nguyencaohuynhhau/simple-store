@@ -9,7 +9,7 @@ namespace SimpleStore.Contracts;
 /// — it is a broadcast cache refresh.
 /// </summary>
 // v11: wire URN pinned to the pre-v11 default — see OrderSubmittedEvent.cs.
-[MessageUrn("urn:message:SimpleStore.Contracts:StockLevelChangedEvent")]
+[MessageUrn("SimpleStore.Contracts:StockLevelChangedEvent")]
 public sealed record StockLevelChangedEventV1
 {
     public int Version { get; init; } = 1;

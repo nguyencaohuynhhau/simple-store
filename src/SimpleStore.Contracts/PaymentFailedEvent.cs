@@ -8,7 +8,7 @@ namespace SimpleStore.Contracts;
 /// releases the already-reserved stock, then cancels the order.
 /// </summary>
 // v12 — brand-new event; URN follows the repo convention (V1 omits the suffix). See OrderSubmittedEvent.cs.
-[MessageUrn("urn:message:SimpleStore.Contracts:PaymentFailedEvent")]
+[MessageUrn("SimpleStore.Contracts:PaymentFailedEvent")]
 public sealed record PaymentFailedEventV1
 {
     public int Version { get; init; } = 1;

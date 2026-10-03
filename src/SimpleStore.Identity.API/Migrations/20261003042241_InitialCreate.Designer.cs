@@ -12,7 +12,7 @@ using SimpleStore.Identity.API.Data;
 namespace SimpleStore.Identity.API.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20260526093822_InitialCreate")]
+    [Migration("20261003042241_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace SimpleStore.Identity.API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.8")
+                .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);

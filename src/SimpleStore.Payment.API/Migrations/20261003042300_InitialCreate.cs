@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace SimpleStore.Checkout.API.Migrations
+namespace SimpleStore.Payment.API.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -12,25 +12,6 @@ namespace SimpleStore.Checkout.API.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "checkout_saga_state",
-                columns: table => new
-                {
-                    CorrelationId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CurrentState = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    OrderId = table.Column<int>(type: "integer", nullable: false),
-                    UserId = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    ReservationId = table.Column<Guid>(type: "uuid", nullable: false),
-                    TimeoutTokenId = table.Column<Guid>(type: "uuid", nullable: true),
-                    FailureReason = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_checkout_saga_state", x => x.CorrelationId);
-                });
-
             migrationBuilder.CreateTable(
                 name: "InboxState",
                 columns: table => new
@@ -68,6 +49,21 @@ namespace SimpleStore.Checkout.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OutboxState", x => x.OutboxId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "payment_accounts",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
+                    Balance = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_payment_accounts", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -112,10 +108,30 @@ namespace SimpleStore.Checkout.API.Migrations
                         principalColumn: "OutboxId");
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_checkout_saga_state_OrderId",
-                table: "checkout_saga_state",
-                column: "OrderId");
+            migrationBuilder.CreateTable(
+                name: "payment_transactions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    AccountId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Type = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    BalanceAfter = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    OrderId = table.Column<int>(type: "integer", nullable: true),
+                    CorrelationId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Description = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_payment_transactions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_payment_transactions_payment_accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "payment_accounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_InboxState_Delivered",
@@ -148,22 +164,41 @@ namespace SimpleStore.Checkout.API.Migrations
                 name: "IX_OutboxState_Created",
                 table: "OutboxState",
                 column: "Created");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_payment_accounts_UserId",
+                table: "payment_accounts",
+                column: "UserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_payment_transactions_AccountId",
+                table: "payment_transactions",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_payment_transactions_OrderId",
+                table: "payment_transactions",
+                column: "OrderId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "checkout_saga_state");
+                name: "OutboxMessage");
 
             migrationBuilder.DropTable(
-                name: "OutboxMessage");
+                name: "payment_transactions");
 
             migrationBuilder.DropTable(
                 name: "InboxState");
 
             migrationBuilder.DropTable(
                 name: "OutboxState");
+
+            migrationBuilder.DropTable(
+                name: "payment_accounts");
         }
     }
 }

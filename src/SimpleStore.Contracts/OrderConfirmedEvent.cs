@@ -7,7 +7,7 @@ namespace SimpleStore.Contracts;
 /// OrderConfirmedConsumer flips the Order.Status to "Confirmed" on the row matching CorrelationId.
 /// </summary>
 // v11: wire URN pinned to the pre-v11 default — see OrderSubmittedEvent.cs.
-[MessageUrn("urn:message:SimpleStore.Contracts:OrderConfirmedEvent")]
+[MessageUrn("SimpleStore.Contracts:OrderConfirmedEvent")]
 public sealed record OrderConfirmedEventV1
 {
     public int Version { get; init; } = 1;

@@ -1,6 +1,7 @@
 <Project Sdk="Aspire.AppHost.Sdk/13.5.3">
 
   <PropertyGroup>
+    <AspireUseCliBundle>true</AspireUseCliBundle>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

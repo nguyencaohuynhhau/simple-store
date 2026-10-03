@@ -11,7 +11,7 @@ namespace SimpleStore.Contracts;
 // so the rename to OrderSubmittedEventV1 is invisible on the bus. Existing queue topology and any
 // in-flight messages keep working. Future OrderSubmittedEventV2 will declare a different URN
 // (e.g. "urn:message:SimpleStore.Contracts:OrderSubmittedEventV2") so consumers can route on it.
-[MessageUrn("urn:message:SimpleStore.Contracts:OrderSubmittedEvent")]
+[MessageUrn("SimpleStore.Contracts:OrderSubmittedEvent")]
 public sealed record OrderSubmittedEventV1
 {
     /// <summary>

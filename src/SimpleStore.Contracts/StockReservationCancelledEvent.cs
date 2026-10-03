@@ -9,7 +9,7 @@ namespace SimpleStore.Contracts;
 /// Reuses <see cref="ReservationLineItem"/> from ReserveStockRequestedEvent.cs.
 /// </summary>
 // v12 — brand-new event; URN follows the repo convention (V1 omits the suffix). See OrderSubmittedEvent.cs.
-[MessageUrn("urn:message:SimpleStore.Contracts:StockReservationCancelledEvent")]
+[MessageUrn("SimpleStore.Contracts:StockReservationCancelledEvent")]
 public sealed record StockReservationCancelledEventV1
 {
     public int Version { get; init; } = 1;

@@ -12,15 +12,15 @@ using SimpleStore.Checkout.API.Data;
 namespace SimpleStore.Checkout.API.Migrations
 {
     [DbContext(typeof(CheckoutDbContext))]
-    [Migration("20260623123325_AddPaymentToSaga")]
-    partial class AddPaymentToSaga
+    [Migration("20261003045545_AddQuartzTables")]
+    partial class AddQuartzTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.9")
+                .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -169,10 +169,6 @@ namespace SimpleStore.Checkout.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("BusName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
@@ -193,8 +189,6 @@ namespace SimpleStore.Checkout.API.Migrations
                     b.HasKey("OutboxId");
 
                     b.HasIndex("Created");
-
-                    b.HasIndex("BusName", "Created");
 
                     b.ToTable("OutboxState");
                 });

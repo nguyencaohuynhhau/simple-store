@@ -8,7 +8,7 @@ namespace SimpleStore.Contracts;
 /// Order.API's OrderCancelledConsumer flips the Order.Status to "Cancelled".
 /// </summary>
 // v11: wire URN pinned to the pre-v11 default — see OrderSubmittedEvent.cs.
-[MessageUrn("urn:message:SimpleStore.Contracts:OrderCancelledEvent")]
+[MessageUrn("SimpleStore.Contracts:OrderCancelledEvent")]
 public sealed record OrderCancelledEventV1
 {
     public int Version { get; init; } = 1;

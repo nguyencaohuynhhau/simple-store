@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace SimpleStore.Catalog.API.Migrations
+namespace SimpleStore.Checkout.API.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -13,17 +13,24 @@ namespace SimpleStore.Catalog.API.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Categories",
+                name: "checkout_saga_state",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false)
+                    CorrelationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CurrentState = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    OrderId = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    Amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    ReservationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TimeoutTokenId = table.Column<Guid>(type: "uuid", nullable: true),
+                    PaymentTimeoutTokenId = table.Column<Guid>(type: "uuid", nullable: true),
+                    FailureReason = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Categories", x => x.Id);
+                    table.PrimaryKey("PK_checkout_saga_state", x => x.CorrelationId);
                 });
 
             migrationBuilder.CreateTable(
@@ -58,36 +65,11 @@ namespace SimpleStore.Catalog.API.Migrations
                     RowVersion = table.Column<byte[]>(type: "bytea", rowVersion: true, nullable: true),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Delivered = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    LastSequenceNumber = table.Column<long>(type: "bigint", nullable: true),
-                    BusName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true)
+                    LastSequenceNumber = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OutboxState", x => x.OutboxId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Products",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
-                    Price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
-                    ImageUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    Stock = table.Column<int>(type: "integer", nullable: false),
-                    CategoryId = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Products", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Products_Categories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "Categories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -133,9 +115,24 @@ namespace SimpleStore.Catalog.API.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_checkout_saga_state_OrderId",
+                table: "checkout_saga_state",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_InboxState_Delivered",
                 table: "InboxState",
                 column: "Delivered");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OutboxMessage_EnqueueTime",
+                table: "OutboxMessage",
+                column: "EnqueueTime");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OutboxMessage_ExpirationTime",
+                table: "OutboxMessage",
+                column: "ExpirationTime");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OutboxMessage_InboxMessageId_InboxConsumerId_SequenceNumber",
@@ -150,33 +147,25 @@ namespace SimpleStore.Catalog.API.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_OutboxState_BusName_Created",
+                name: "IX_OutboxState_Created",
                 table: "OutboxState",
-                columns: new[] { "BusName", "Created" });
-
-            migrationBuilder.CreateIndex(
-                name: "ix_products_category_id",
-                table: "Products",
-                column: "CategoryId");
+                column: "Created");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "OutboxMessage");
+                name: "checkout_saga_state");
 
             migrationBuilder.DropTable(
-                name: "Products");
+                name: "OutboxMessage");
 
             migrationBuilder.DropTable(
                 name: "InboxState");
 
             migrationBuilder.DropTable(
                 name: "OutboxState");
-
-            migrationBuilder.DropTable(
-                name: "Categories");
         }
     }
 }

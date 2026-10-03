@@ -10,7 +10,7 @@ namespace SimpleStore.Contracts;
 /// </summary>
 // v12 — brand-new event; URN follows the repo convention (V1 omits the suffix, a future V2 declares
 // its own URN). See docs/versioning.md and OrderSubmittedEvent.cs.
-[MessageUrn("urn:message:SimpleStore.Contracts:ProcessPaymentRequestedEvent")]
+[MessageUrn("SimpleStore.Contracts:ProcessPaymentRequestedEvent")]
 public sealed record ProcessPaymentRequestedEventV1
 {
     public int Version { get; init; } = 1;
